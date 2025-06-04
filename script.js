@@ -9,9 +9,9 @@ async function getImageData(file) {
     });
 }
 
-async function fetchJson(url, options = {}) {
+async function fetchJson(url) {
     const proxy = `https://corsproxy.io/?${encodeURIComponent(url)}`;
-    const resp = await fetch(proxy, options);
+    const resp = await fetch(proxy);
     return resp.json();
 }
 async function search() {
