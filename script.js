@@ -24,9 +24,10 @@ async function search() {
     }
 
     const serpUrl = `https://serpapi.com/search.json?engine=google_lens&url=${encodeURIComponent(url)}&api_key=${API_KEY}`;
+    const proxyUrl = `https://api.codetabs.com/v1/proxy/?quest=${encodeURIComponent(serpUrl)}`;
 
     try {
-        const resp = await fetch(fetchUrl);
+        const resp = await fetch(proxyUrl);
         const data = await resp.json();
         const items = (data.shopping_results || []).map(r => ({
             title: r.title || 'No title',

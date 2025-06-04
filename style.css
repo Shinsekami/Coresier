@@ -1,8 +1,10 @@
 body {
-    font-family: Arial, sans-serif;
-    margin: 20px;
+    font-family: 'Segoe UI', Roboto, sans-serif;
+    margin: 40px auto;
+    max-width: 600px;
     background: #121212;
     color: #eee;
+    line-height: 1.4;
 }
 
 #results { margin-top: 20px; }
@@ -14,9 +16,19 @@ input, button {
     background: #1e1e1e;
     color: #eee;
     border: 1px solid #333;
-    padding: 6px;
+    padding: 8px;
+    border-radius: 4px;
+    width: 100%;
+    box-sizing: border-box;
+    margin-top: 8px;
 }
 
 button {
     cursor: pointer;
+    background: #2e2e2e;
+    transition: background 0.2s ease;
+}
+
+button:hover {
+    background: #3e3e3e;
 }
