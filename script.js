@@ -10,8 +10,11 @@ async function getImageData(file) {
 }
 
 async function fetchJson(url, options = {}) {
-    const proxy = `https://corsproxy.io/?${encodeURIComponent(url)}`;
+    const proxy = `https://corsproxy.io/?${url}`;
     const resp = await fetch(proxy, options);
+    if (!resp.ok) {
+        throw new Error(`Request failed: ${resp.status}`);
+    }
     return resp.json();
 }
 async function search() {
@@ -32,12 +35,16 @@ async function search() {
     let serpUrl;
     let options = {};
     if (encodedImage) {
-        const params = new URLSearchParams({
-            engine: 'google_lens',
-            api_key: API_KEY,
-            encoded_image: encodedImage
-        });
-        serpUrl = `https://serpapi.com/search.json?${params.toString()}`;
+        serpUrl = 'https://serpapi.com/search.json';
+        options = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({
+                engine: 'google_lens',
+                api_key: API_KEY,
+                encoded_image: encodedImage
+            })
+        };
     } else {
         serpUrl = `https://serpapi.com/search.json?engine=google_lens&url=${encodeURIComponent(url)}&api_key=${API_KEY}`;
     }
