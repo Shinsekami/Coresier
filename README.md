@@ -12,3 +12,4 @@ The site fetches the API through the free [Codetabs](https://api.codetabs.com) C
 
 The interface sports a sleek dark theme. Shopping links are displayed as cards, listing the title, price and source.
 When SerpApi doesn't provide direct shopping results, FurniScout falls back to the visual match data.
+
