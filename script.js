@@ -48,14 +48,34 @@ async function search() {
                 items = productData.shopping_results;
             }
         }
+        if (!items.length && Array.isArray(data.visual_matches)) {
+            items = data.visual_matches;
+        }
 
         items = items.map(r => {
-            const priceNum = parseFloat((r.price || '').replace(/[^0-9.]/g, ''));
+            let priceNum = Infinity;
+            let priceText = 'N/A';
+            if (r.price) {
+                if (typeof r.price === 'string') {
+                    priceText = r.price;
+                    const n = parseFloat(r.price.replace(/[^0-9.]/g, ''));
+                    if (!isNaN(n)) priceNum = n;
+                } else {
+                    if (typeof r.price.extracted_value === 'number') {
+                        priceNum = r.price.extracted_value;
+                    }
+                    if (r.price.value) {
+                        priceText = r.price.value;
+                    } else if (r.price.currency) {
+                        priceText = `${r.price.currency}${r.price.extracted_value}`;
+                    }
+                }
+            }
             return {
                 title: r.title || 'No title',
                 link: r.link || r.source,
-                price: isNaN(priceNum) ? Infinity : priceNum,
-                priceText: r.price || 'N/A',
+                price: priceNum,
+                priceText,
                 source: r.source || ''
             };
         }).filter(i => i.link);
