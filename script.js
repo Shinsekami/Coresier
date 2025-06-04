@@ -14,7 +14,6 @@ async function fetchJson(url) {
     const resp = await fetch(proxy);
     return resp.json();
 }
-
 async function search() {
     const imageUrl = document.getElementById('image-url').value.trim();
     const fileInput = document.getElementById('image-file').files[0];
@@ -30,7 +29,6 @@ async function search() {
     }
 
     const serpUrl = `https://serpapi.com/search.json?engine=google_lens&url=${encodeURIComponent(url)}&api_key=${API_KEY}`;
-
     try {
         const data = await fetchJson(serpUrl);
 
