@@ -14,4 +14,5 @@ The site fetches the API through the free [corsproxy.io](https://corsproxy.io/) 
 
 
 The interface sports a sleek dark theme. Shopping links are displayed as cards, listing the title, price and source.
+The page now uses the "Poppins" font and refined gradients for a sharper, more colorful look.
 When SerpApi doesn't provide direct shopping results, FurniScout falls back to the visual match data.

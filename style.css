@@ -2,10 +2,18 @@
     min-height: 100vh;
 }
 
+:root {
+    --accent: #7154d8;
+    --accent-light: #a88aff;
+    --bg-start: #0e0e14;
+    --bg-mid: #3a1b5d;
+    --bg-end: #1d2240;
+}
+
 body {
-    font-family: 'Inter', 'Segoe UI', Roboto, sans-serif;
+    font-family: 'Poppins', 'Inter', 'Segoe UI', Roboto, sans-serif;
     margin: 0;
-    background: linear-gradient(160deg,#0e0e14,#3a1b5d 40%,#1d2240);
+    background: linear-gradient(160deg,var(--bg-start),var(--bg-mid) 40%,var(--bg-end));
     background-size: 200% 200%;
     animation: gradientShift 12s ease infinite;
     color: #eee;
@@ -81,6 +89,11 @@ body::after {
     color: #fff;
     margin-bottom: 10px;
     text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+}
+.logo span {
+    background: linear-gradient(90deg,var(--accent-light),#fff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
 .logo svg {
     height: 32px;
@@ -252,53 +265,31 @@ input::file-selector-button {
     padding: 6px 12px;
     border: none;
     border-radius: 4px;
-    background: #5b31c5;
+    background: var(--accent);
     color: #fff;
     cursor: pointer;
     margin-right: 8px;
 }
 
 input::file-selector-button:hover {
-    background: #6d3cf1;
+    background: var(--accent-light);
 }
 
 input:focus {
     outline: none;
-    border-color: #7154d8;
+    border-color: var(--accent);
     box-shadow: 0 0 0 2px rgba(113,84,216,0.4);
 }
 
 button:focus {
     outline: none;
     box-shadow: 0 0 0 2px rgba(113,84,216,0.4);
-}
-
-input[type="file"] {
-    padding: 8px 10px;
-}
-
-input::file-selector-button {
-    padding: 6px 12px;
-    border: none;
-    border-radius: 4px;
-    background: #5b31c5;
-    color: #fff;
-    cursor: pointer;
-    margin-right: 8px;
-}
-
-input::file-selector-button:hover {
-    background: #6d3cf1;
-}
-input:focus {
-    outline: none;
-    border-color: #7154d8;
-    box-shadow: 0 0 0 2px rgba(113,84,216,0.4);
+    border-color: var(--accent);
 }
 
 button {
     cursor: pointer;
-    background: linear-gradient(135deg,#5b31c5,#372e96);
+    background: linear-gradient(135deg,var(--accent),#372e96);
     transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
     font-size: 1rem;
     padding: 12px;
@@ -307,7 +298,7 @@ button {
 }
 
 button:hover {
-    background: linear-gradient(135deg,#6d3cf1,#4536b1);
+    background: linear-gradient(135deg,var(--accent-light),#4536b1);
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0,0,0,0.4);
 }
@@ -315,4 +306,19 @@ button:hover {
 button:active {
     transform: translateY(0);
     box-shadow: 0 2px 6px rgba(0,0,0,0.4) inset;
+}
+
+/* custom scrollbar */
+::-webkit-scrollbar {
+    width: 10px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background: var(--accent);
+    border-radius: 5px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-light);
 }

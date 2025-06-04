@@ -10,8 +10,9 @@ async function getImageData(file) {
 }
 
 async function fetchJson(url, options = {}) {
-    const proxy = `https://corsproxy.io/?${url}`;
-    const resp = await fetch(proxy, options);
+    const proxy = `https://corsproxy.io/?${encodeURIComponent(url)}`;
+    const headers = { Accept: 'application/json', ...(options.headers || {}) };
+    const resp = await fetch(proxy, { ...options, headers });
     if (!resp.ok) {
         throw new Error(`Request failed: ${resp.status}`);
     }
