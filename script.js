@@ -9,9 +9,9 @@ async function getImageData(file) {
     });
 }
 
-async function fetchJson(url) {
-    const proxy = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
-    const resp = await fetch(proxy);
+async function fetchJson(url, options = {}) {
+    const proxy = `https://corsproxy.io/?${encodeURIComponent(url)}`;
+    const resp = await fetch(proxy, options);
     return resp.json();
 }
 async function search() {
@@ -30,13 +30,26 @@ async function search() {
         return;
     }
     let serpUrl;
+    let options = {};
     if (encodedImage) {
-        serpUrl = `https://serpapi.com/search.json?engine=google_lens&encoded_image=${encodeURIComponent(encodedImage)}&api_key=${API_KEY}`;
+        serpUrl = 'https://serpapi.com/search.json';
+        const params = new URLSearchParams({
+            engine: 'google_lens',
+            api_key: API_KEY,
+            encoded_image: encodedImage
+        });
+        options = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: params.toString()
+        };
     } else {
         serpUrl = `https://serpapi.com/search.json?engine=google_lens&url=${encodeURIComponent(url)}&api_key=${API_KEY}`;
     }
     try {
-        const data = await fetchJson(serpUrl);
+        const data = await fetchJson(serpUrl, options);
 
         let items = [];
         if (Array.isArray(data.shopping_results)) {
@@ -87,7 +100,7 @@ async function search() {
                 source,
                 thumbnail: r.thumbnail || r.image || ''
             };
-        }).filter(i => i.link && i.price !== Infinity && i.priceText !== 'N/A');
+        }).filter(i => i.link);
         items.sort((a, b) => a.price - b.price);
         if (!items.length) {
             resultsDiv.textContent = 'No results found.';
