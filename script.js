@@ -10,7 +10,7 @@ async function getImageData(file) {
 }
 
 async function fetchJson(url) {
-    const proxy = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+    const proxy = `https://corsproxy.io/?${encodeURIComponent(url)}`;
     const resp = await fetch(proxy);
     return resp.json();
 }
@@ -87,7 +87,7 @@ async function search() {
                 source,
                 thumbnail: r.thumbnail || r.image || ''
             };
-        }).filter(i => i.link && i.price !== Infinity && i.priceText !== 'N/A');
+        }).filter(i => i.link);
         items.sort((a, b) => a.price - b.price);
         if (!items.length) {
             resultsDiv.textContent = 'No results found.';
