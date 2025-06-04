@@ -32,19 +32,12 @@ async function search() {
     let serpUrl;
     let options = {};
     if (encodedImage) {
-        serpUrl = 'https://serpapi.com/search.json';
         const params = new URLSearchParams({
             engine: 'google_lens',
             api_key: API_KEY,
             encoded_image: encodedImage
         });
-        options = {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            body: params.toString()
-        };
+        serpUrl = `https://serpapi.com/search.json?${params.toString()}`;
     } else {
         serpUrl = `https://serpapi.com/search.json?engine=google_lens&url=${encodeURIComponent(url)}&api_key=${API_KEY}`;
     }
