@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Furniture Price Finder</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.21.0"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd@2.2.2"></script>
+</head>
+<body>
+    <h1>Furniture Price Finder</h1>
+    <p>
+        Paste an image URL of furniture and your SerpApi key. The site uses the free
+        SerpApi <a href="https://serpapi.com/google-lens-api" target="_blank">Google Lens API</a>
+        (you need a free API key) to reverse image search and return prices.
+    </p>
+    <label>Image URL: <input id="image-url" type="text" size="60"></label><br>
+    <label>SerpApi Key: <input id="serpapi-key" type="text" size="40"></label><br>
+    <button id="search-btn">Search</button>
+    <div id="results"></div>
+    <script src="script.js"></script>
+</body>
+</html>
