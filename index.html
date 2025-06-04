@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Furniture Price Finder</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Furniture Price Finder</h1>
+    <p>
+        Upload a furniture image or paste a public image URL. The page uses the free
+        <a href="https://serpapi.com/google-lens-api" target="_blank">SerpApi Google Lens API</a>
+        to reverse image search and list prices.
+    </p>
+    <label>Image URL: <input id="image-url" type="text" size="60" placeholder="https://"></label><br>
+    <label>or Upload: <input id="image-file" type="file" accept="image/*"></label><br>
+    <button id="search-btn">Search</button>
+    <div id="results"></div>
+    <script src="script.js"></script>
+</body>
+</html>
