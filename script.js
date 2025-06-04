@@ -10,7 +10,7 @@ async function getImageData(file) {
 }
 
 async function fetchJson(url) {
-    const proxy = `https://api.codetabs.com/v1/proxy/?quest=${encodeURIComponent(url)}`;
+    const proxy = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
     const resp = await fetch(proxy);
     return resp.json();
 }
