@@ -1,14 +1,29 @@
+const API_KEY = '7559dc323e6691904899ae9264d34e381ba8c7aa518bf804ba9d1df6b2d19352';
+
+async function getImageData(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
+}
+
 async function search() {
     const imageUrl = document.getElementById('image-url').value.trim();
-    const apiKey = document.getElementById('serpapi-key').value.trim();
+    const fileInput = document.getElementById('image-file').files[0];
     const resultsDiv = document.getElementById('results');
     resultsDiv.innerHTML = '';
-    if (!imageUrl || !apiKey) {
-        resultsDiv.textContent = 'Please provide both image URL and API key.';
+    let url = imageUrl;
+    if (!url && fileInput) {
+        url = await getImageData(fileInput);
+    }
+    if (!url) {
+        resultsDiv.textContent = 'Please provide an image URL or upload a file.';
         return;
     }
 
-    const serpUrl = `https://serpapi.com/search.json?engine=google_lens&url=${encodeURIComponent(imageUrl)}&api_key=${apiKey}`;
+    const serpUrl = `https://serpapi.com/search.json?engine=google_lens&url=${encodeURIComponent(url)}&api_key=${API_KEY}`;
     const fetchUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(serpUrl)}`;
 
     try {
@@ -33,7 +48,7 @@ async function search() {
         });
     } catch (e) {
         console.error(e);
-        resultsDiv.textContent = 'Error fetching results. Ensure the API key is valid.';
+        resultsDiv.textContent = 'Error fetching results.';
     }
 }
 
