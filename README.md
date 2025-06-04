@@ -3,7 +3,6 @@
 FurniScout is a static website that uses the free [SerpApi Google Lens API](https://serpapi.com/google-lens-api) to reverse image search furniture and display pricing links.  It has a modern dark look and requires no configuration: simply upload or link to a picture of the furniture.
 
 Results show a preview image, the store name and product title, and the price in ascending order. Listings without a price are filtered out.
-
 ## Usage
 1. Host this repository on GitHub Pages.
 2. Open the site and either upload an image of the furniture or paste a public image URL.
@@ -12,6 +11,7 @@ Results show a preview image, the store name and product title, and the price in
    Large uploads may fail with the proxy, so providing a URL to the image tends to be more reliable.
 
 The site fetches the API through the free [AllOrigins](https://api.allorigins.win) CORS proxy so it works purely as a client-side page.
+
 
 The interface sports a sleek dark theme. Shopping links are displayed as cards, listing the title, price and source.
 When SerpApi doesn't provide direct shopping results, FurniScout falls back to the visual match data.

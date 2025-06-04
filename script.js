@@ -14,7 +14,6 @@ async function fetchJson(url) {
     const resp = await fetch(proxy);
     return resp.json();
 }
-
 async function search() {
     const imageUrl = document.getElementById('image-url').value.trim();
     const fileInput = document.getElementById('image-file').files[0];
@@ -30,14 +29,12 @@ async function search() {
         resultsDiv.textContent = 'Please provide an image URL or upload a file.';
         return;
     }
-
     let serpUrl;
     if (encodedImage) {
         serpUrl = `https://serpapi.com/search.json?engine=google_lens&encoded_image=${encodeURIComponent(encodedImage)}&api_key=${API_KEY}`;
     } else {
         serpUrl = `https://serpapi.com/search.json?engine=google_lens&url=${encodeURIComponent(url)}&api_key=${API_KEY}`;
     }
-
     try {
         const data = await fetchJson(serpUrl);
 
