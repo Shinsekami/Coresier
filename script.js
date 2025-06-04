@@ -71,14 +71,23 @@ async function search() {
                     }
                 }
             }
+            let source = r.source || '';
+            if (!source && r.link) {
+                try {
+                    const host = new URL(r.link).hostname.replace(/^www\./, '');
+                    source = host.split('.')[0];
+                    source = source.charAt(0).toUpperCase() + source.slice(1);
+                } catch {}
+            }
             return {
                 title: r.title || 'No title',
-                link: r.link || r.source,
+                link: r.link || '',
                 price: priceNum,
                 priceText,
-                source: r.source || ''
+                source,
+                thumbnail: r.thumbnail || r.image || ''
             };
-        }).filter(i => i.link);
+        }).filter(i => i.link && i.price !== Infinity && i.priceText !== 'N/A');
         items.sort((a, b) => a.price - b.price);
         if (!items.length) {
             resultsDiv.textContent = 'No results found.';
@@ -87,7 +96,12 @@ async function search() {
         items.forEach(i => {
             const div = document.createElement('div');
             div.className = 'result';
-            div.innerHTML = `<a href="${i.link}" target="_blank">${i.title}</a> - <span class="price">${i.priceText}</span> (${i.source})`;
+            div.innerHTML = `
+                <img src="${i.thumbnail}" alt=""> 
+                <div class="info">
+                    <a href="${i.link}" target="_blank">${i.source}: ${i.title}</a>
+                    <div class="price">${i.priceText}</div>
+                </div>`;
             resultsDiv.appendChild(div);
         });
     } catch (e) {
