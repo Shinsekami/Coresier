@@ -9,6 +9,11 @@ async function getImageData(file) {
     });
 }
 
+async function fetchJson(url) {
+    const proxy = `https://api.codetabs.com/v1/proxy/?quest=${encodeURIComponent(url)}`;
+    const resp = await fetch(proxy);
+    return resp.json();
+}
 async function search() {
     const imageUrl = document.getElementById('image-url').value.trim();
     const fileInput = document.getElementById('image-file').files[0];
@@ -24,17 +29,30 @@ async function search() {
     }
 
     const serpUrl = `https://serpapi.com/search.json?engine=google_lens&url=${encodeURIComponent(url)}&api_key=${API_KEY}`;
-    const proxyUrl = `https://api.codetabs.com/v1/proxy/?quest=${encodeURIComponent(serpUrl)}`;
-
     try {
-        const resp = await fetch(proxyUrl);
-        const data = await resp.json();
-        const items = (data.shopping_results || []).map(r => ({
-            title: r.title || 'No title',
-            link: r.link || r.source, // fall back to source link
-            price: parseFloat((r.price || '').replace(/[^0-9\.]/g, '')) || 0,
-            source: r.source || ''
-        })).filter(i => i.link);
+        const data = await fetchJson(serpUrl);
+
+        let items = [];
+        if (Array.isArray(data.shopping_results)) {
+            items = data.shopping_results;
+        } else if (data.serpapi_products_link) {
+            const productUrl = `${data.serpapi_products_link}&api_key=${API_KEY}`;
+            const productData = await fetchJson(productUrl);
+            if (Array.isArray(productData.shopping_results)) {
+                items = productData.shopping_results;
+            }
+        }
+
+        items = items.map(r => {
+            const priceNum = parseFloat((r.price || '').replace(/[^0-9.]/g, ''));
+            return {
+                title: r.title || 'No title',
+                link: r.link || r.source,
+                price: isNaN(priceNum) ? Infinity : priceNum,
+                priceText: r.price || 'N/A',
+                source: r.source || ''
+            };
+        }).filter(i => i.link);
         items.sort((a, b) => a.price - b.price);
         if (!items.length) {
             resultsDiv.textContent = 'No results found.';
@@ -43,7 +61,7 @@ async function search() {
         items.forEach(i => {
             const div = document.createElement('div');
             div.className = 'result';
-            div.innerHTML = `<a href="${i.link}" target="_blank">${i.title}</a> - <span class="price">$${i.price.toFixed(2)}</span> (${i.source})`;
+            div.innerHTML = `<a href="${i.link}" target="_blank">${i.title}</a> - <span class="price">${i.priceText}</span> (${i.source})`;
             resultsDiv.appendChild(div);
         });
     } catch (e) {
