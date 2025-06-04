@@ -9,9 +9,9 @@ async function getImageData(file) {
     });
 }
 
-async function fetchJson(url) {
-    const proxy = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
-    const resp = await fetch(proxy);
+async function fetchJson(url, options = {}) {
+    const proxy = `https://corsproxy.io/?${encodeURIComponent(url)}`;
+    const resp = await fetch(proxy, options);
     return resp.json();
 }
 async function search() {
@@ -30,6 +30,7 @@ async function search() {
         return;
     }
     let serpUrl;
+    let options = {};
     if (encodedImage) {
         const params = new URLSearchParams({
             engine: 'google_lens',
@@ -41,7 +42,7 @@ async function search() {
         serpUrl = `https://serpapi.com/search.json?engine=google_lens&url=${encodeURIComponent(url)}&api_key=${API_KEY}`;
     }
     try {
-        const data = await fetchJson(serpUrl);
+        const data = await fetchJson(serpUrl, options);
 
         let items = [];
         if (Array.isArray(data.shopping_results)) {

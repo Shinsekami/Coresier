@@ -214,7 +214,6 @@ input::file-selector-button {
 input::file-selector-button:hover {
     background: #6d3cf1;
 }
-
 input:focus {
     outline: none;
     border-color: #7154d8;
