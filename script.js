@@ -31,7 +31,12 @@ async function search() {
     }
     let serpUrl;
     if (encodedImage) {
-        serpUrl = `https://serpapi.com/search.json?engine=google_lens&encoded_image=${encodeURIComponent(encodedImage)}&api_key=${API_KEY}`;
+        const params = new URLSearchParams({
+            engine: 'google_lens',
+            api_key: API_KEY,
+            encoded_image: encodedImage
+        });
+        serpUrl = `https://serpapi.com/search.json?${params.toString()}`;
     } else {
         serpUrl = `https://serpapi.com/search.json?engine=google_lens&url=${encodeURIComponent(url)}&api_key=${API_KEY}`;
     }
@@ -87,7 +92,7 @@ async function search() {
                 source,
                 thumbnail: r.thumbnail || r.image || ''
             };
-        }).filter(i => i.link && i.price !== Infinity && i.priceText !== 'N/A');
+        }).filter(i => i.link);
         items.sort((a, b) => a.price - b.price);
         if (!items.length) {
             resultsDiv.textContent = 'No results found.';
