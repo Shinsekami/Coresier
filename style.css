@@ -5,27 +5,50 @@
 body {
     font-family: 'Segoe UI', Roboto, sans-serif;
     margin: 0;
-    background: linear-gradient(135deg, #1a1a1a, #232323);
+    background: linear-gradient(135deg, #0f0f10, #1c1c1f);
     color: #eee;
     line-height: 1.5;
 }
 
+.hero {
+    text-align: center;
+    padding: 60px 20px 40px;
+}
+
+.hero h1 {
+    margin: 0 0 10px;
+    font-size: 2.5rem;
+}
+.hero p {
+    margin: 0;
+    color: #bbb;
+}
+
 .container {
     max-width: 600px;
-    margin: 40px auto;
-    padding: 20px;
+    margin: 20px auto 60px;
+    padding: 30px 20px;
     background: #181818;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-    border-radius: 8px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.35);
+    border-radius: 10px;
 }
 
 #results {
     margin-top: 20px;
 }
 
+.divider {
+    text-align: center;
+    margin: 10px 0;
+    color: #666;
+}
+
 .result {
-    border-bottom: 1px solid #444;
-    padding: 10px 0;
+    background: #202020;
+    border-radius: 6px;
+    padding: 12px 16px;
+    margin-bottom: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
 }
 
 .result a {
@@ -52,6 +75,8 @@ button {
     cursor: pointer;
     background: #2e2e2e;
     transition: background 0.2s ease;
+    font-size: 1rem;
+    padding: 10px;
 }
 
 button:hover {

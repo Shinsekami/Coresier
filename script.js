@@ -20,15 +20,21 @@ async function search() {
     const resultsDiv = document.getElementById('results');
     resultsDiv.innerHTML = '';
     let url = imageUrl;
+    let encodedImage = null;
     if (!url && fileInput) {
-        url = await getImageData(fileInput);
+        const data = await getImageData(fileInput);
+        encodedImage = data.replace(/^data:image\/(png|jpe?g);base64,/, '');
     }
-    if (!url) {
+    if (!url && !encodedImage) {
         resultsDiv.textContent = 'Please provide an image URL or upload a file.';
         return;
     }
-
-    const serpUrl = `https://serpapi.com/search.json?engine=google_lens&url=${encodeURIComponent(url)}&api_key=${API_KEY}`;
+    let serpUrl;
+    if (encodedImage) {
+        serpUrl = `https://serpapi.com/search.json?engine=google_lens&encoded_image=${encodeURIComponent(encodedImage)}&api_key=${API_KEY}`;
+    } else {
+        serpUrl = `https://serpapi.com/search.json?engine=google_lens&url=${encodeURIComponent(url)}&api_key=${API_KEY}`;
+    }
     try {
         const data = await fetchJson(serpUrl);
 
