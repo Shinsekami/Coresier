@@ -15,7 +15,7 @@ function displayError(el, err) {
 }
 
 async function fetchJson(url, options = {}) {
-    const proxy = `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`;
+    const proxy = `https://r.jina.ai/${url}`;
     let resp;
     try {
         resp = await fetch(proxy, options);
@@ -26,32 +26,11 @@ async function fetchJson(url, options = {}) {
     if (!resp.ok) {
         throw new Error(`Request failed ${resp.status}: ${text.slice(0, 200)}`);
     }
-    try {
-        return JSON.parse(text);
-    } catch (e) {
-        throw new Error(`Invalid JSON: ${e.message}. Response: ${text.slice(0, 200)}`);
-    }
-}
 
-function displayError(el, err) {
-    console.error(err);
-    el.textContent = `Error: ${err.message}`;
-}
-
-async function fetchJson(url, options = {}) {
-    const proxy = `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`;
-    let resp;
+    const start = text.indexOf('{');
+    const jsonText = start >= 0 ? text.slice(start) : text;
     try {
-        resp = await fetch(proxy, options);
-    } catch (err) {
-        throw new Error(`Fetch failed: ${err.message}`);
-    }
-    const text = await resp.text();
-    if (!resp.ok) {
-        throw new Error(`Request failed ${resp.status}: ${text.slice(0, 200)}`);
-    }
-    try {
-        return JSON.parse(text);
+        return JSON.parse(jsonText);
     } catch (e) {
         throw new Error(`Invalid JSON: ${e.message}. Response: ${text.slice(0, 200)}`);
     }
