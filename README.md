@@ -10,7 +10,7 @@ Results show a preview image, the store name and product title, and the price in
 4. Links are displayed (when available) with the detected price, sorted from lowest to highest.  The SerpApi key is embedded in the code so no extra input is required.
    Large uploads may fail with the proxy, so providing a URL to the image tends to be more reliable.
 
-The site fetches the API through the free [AllOrigins](https://api.allorigins.win/) proxy so it works purely as a client-side page. Keep in mind that very large uploads may still fail, so providing a direct image URL is generally the most reliable method.
+The site fetches the API through the free [corsproxy.io](https://corsproxy.io) service so it works purely as a client-side page. Image uploads are sent via POST to avoid hitting URL limits, but extremely large files might still fail – using a direct image link is the safest choice.
 
 
 The interface sports a sleek purple theme with glowing gradients and animated cards. Search results are sorted by price in Euros and only show listings that include pricing information. The URL and file inputs highlight whichever was used most recently so it’s clear what will be searched.

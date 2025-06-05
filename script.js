@@ -18,9 +18,9 @@ async function getImageData(file) {
     });
 }
 
-async function fetchJson(url) {
-    const proxy = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
-    const resp = await fetch(proxy);
+async function fetchJson(url, options = {}) {
+    const proxy = `https://corsproxy.io/?${encodeURIComponent(url)}`;
+    const resp = await fetch(proxy, options);
     if (!resp.ok) {
         throw new Error(`Request failed: ${resp.status}`);
     }
@@ -46,12 +46,14 @@ async function search() {
         resultsDiv.textContent = 'Please provide an image URL or upload a file.';
         return;
     }
-    let serpUrl;
+    let serpUrl = 'https://serpapi.com/search.json';
     let options = {};
     if (encodedImage) {
-        serpUrl = `https://serpapi.com/search.json?engine=google_lens&api_key=${API_KEY}&encoded_image=${encodeURIComponent(encodedImage)}`;
+        options.method = 'POST';
+        options.headers = { 'Content-Type': 'application/x-www-form-urlencoded' };
+        options.body = `engine=google_lens&api_key=${API_KEY}&encoded_image=${encodeURIComponent(encodedImage)}`;
     } else {
-        serpUrl = `https://serpapi.com/search.json?engine=google_lens&url=${encodeURIComponent(url)}&api_key=${API_KEY}`;
+        serpUrl += `?engine=google_lens&url=${encodeURIComponent(url)}&api_key=${API_KEY}`;
     }
     try {
         const data = await fetchJson(serpUrl, options);
