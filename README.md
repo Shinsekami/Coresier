@@ -12,5 +12,4 @@ Results show a preview image, the store name and product title, and the price in
 
 The site fetches the API through the free [AllOrigins](https://api.allorigins.win) proxy so it works purely as a client-side page. Uploaded images are first sent to [tmpfiles.org](https://tmpfiles.org) and the resulting temporary URL is searched via SerpApi. This avoids CORS issues while keeping everything client-side.
 
-
 The interface sports a sleek purple theme with glowing gradients and animated cards. Search results are sorted by price in Euros and will display “N/A” if pricing information isn’t available. The URL and file inputs highlight whichever was used most recently so it’s clear what will be searched.
