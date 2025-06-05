@@ -8,6 +8,7 @@
     --bg-start: #0e0e14;
     --bg-mid: #3a1b5d;
     --bg-end: #1d2240;
+    --star: rgba(255,255,255,0.2);
 }
 
 body {
@@ -25,13 +26,29 @@ body {
     overflow-x: hidden;
 }
 
+body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+        radial-gradient(var(--star) 1px, transparent 1px),
+        radial-gradient(var(--star) 1px, transparent 1px);
+    background-size: 3px 3px, 2px 2px;
+    background-position: 0 0, 1px 1px;
+    animation: twinkle 8s linear infinite;
+    pointer-events: none;
+    z-index: -2;
+}
+
 body::before {
     content: '';
     position: fixed;
     inset: -40%;
-    background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
+    background:
+        radial-gradient(circle at center, rgba(113,84,216,0.15), transparent 70%),
+        radial-gradient(circle, var(--accent) 0%, transparent 70%);
     opacity: 0.15;
-    animation: pulseGlow 8s ease-in-out infinite;
+    animation: heroGlow 20s linear infinite, pulseGlow 8s ease-in-out infinite;
     pointer-events: none;
     z-index: -1;
 }
@@ -41,18 +58,11 @@ body::before {
     50% { transform: scale(1.4); }
 }
 
-body::after {
-    content: '';
-    position: fixed;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(circle at center, rgba(113,84,216,0.15), transparent 70%);
-    animation: heroGlow 20s linear infinite;
-    pointer-events: none;
-    z-index: -1;
+@keyframes twinkle {
+    from { background-position: 0 0, 1px 1px; }
+    to { background-position: 100px 100px, 101px 101px; }
 }
+
 
 @keyframes gradientShift {
     0% { background-position: 0% 50%; }
@@ -69,6 +79,9 @@ body::after {
     backdrop-filter: blur(4px);
     position: relative;
     overflow: hidden;
+    transform-style: preserve-3d;
+    perspective: 1000px;
+    transition: transform 0.3s ease;
 }
 
 .hero::before {
@@ -89,6 +102,10 @@ body::after {
     background: repeating-radial-gradient(circle at center, rgba(255,255,255,0.05), rgba(255,255,255,0.05) 2px, transparent 2px, transparent 6px);
     opacity: 0.2;
     pointer-events: none;
+}
+
+.hero:hover {
+    transform: rotateX(4deg) scale(1.02);
 }
 
 @keyframes heroGlow {
@@ -146,13 +163,27 @@ body::after {
     inset: 0;
     border-radius: inherit;
     padding: 1px;
-    background: linear-gradient(135deg,rgba(255,255,255,0.15),rgba(255,255,255,0.02));
+    background: linear-gradient(135deg,rgba(255,255,255,0.2),rgba(255,255,255,0.05));
     -webkit-mask:
         linear-gradient(#000 0 0) content-box,
         linear-gradient(#000 0 0);
     -webkit-mask-composite: xor;
             mask-composite: exclude;
     pointer-events: none;
+}
+
+.container::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 80% -20%, var(--accent) 0%, transparent 70%);
+    opacity: 0.1;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+}
+
+.container:hover::after {
+    opacity: 0.2;
 }
 
 #results {
@@ -219,8 +250,8 @@ body::after {
 }
 
 .result:hover {
-    transform: translateY(-6px) rotate3d(1,1,0,6deg);
-    box-shadow: 0 10px 24px rgba(0,0,0,0.5);
+    transform: translateY(-6px) scale(1.03) rotate3d(1,1,0,6deg);
+    box-shadow: 0 12px 28px rgba(0,0,0,0.55);
 }
 
 .result::after {
@@ -350,8 +381,8 @@ button {
 
 button:hover {
     background: linear-gradient(135deg,var(--accent-light),#4536b1);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.45), 0 0 8px var(--accent-light);
 }
 
 button:active {

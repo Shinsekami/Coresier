@@ -19,7 +19,7 @@ async function getImageData(file) {
 }
 
 async function fetchJson(url, options = {}) {
-    const proxy = `https://corsproxy.io/?${encodeURIComponent(url)}`;
+    const proxy = `https://thingproxy.freeboard.io/fetch/${url}`;
     const resp = await fetch(proxy, options);
     if (!resp.ok) {
         throw new Error(`Request failed: ${resp.status}`);
@@ -111,8 +111,8 @@ async function search() {
                 source,
                 thumbnail: r.thumbnail || r.image || ''
             };
-        }).filter(i => i.link && i.price != null);
-        items.sort((a, b) => a.price - b.price);
+        }).filter(i => i.link);
+        items.sort((a, b) => (a.price ?? Infinity) - (b.price ?? Infinity));
         if (!items.length) {
             resultsDiv.textContent = 'No results found.';
             return;
