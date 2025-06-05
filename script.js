@@ -10,7 +10,8 @@ const EXCHANGE_RATES = {
 let activeInput = 'url';
 
 async function fetchJson(url, options = {}) {
-    const proxy = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+    const proxy = `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`;
+
     const resp = await fetch(proxy, options);
     const text = await resp.text();
     if (!resp.ok) {
@@ -146,7 +147,7 @@ async function search() {
         });
     } catch (e) {
         console.error(e);
-        resultsDiv.textContent = 'Error fetching results.';
+        resultsDiv.textContent = `Error: ${e.message}`;
     }
 }
 
