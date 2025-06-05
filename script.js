@@ -1,4 +1,13 @@
 const API_KEY = '7559dc323e6691904899ae9264d34e381ba8c7aa518bf804ba9d1df6b2d19352';
+const EXCHANGE_RATES = {
+    EUR: 1,
+    USD: 0.92,
+    GBP: 1.17,
+    CAD: 0.68,
+    AUD: 0.61,
+    JPY: 0.0058
+};
+let activeInput = 'url';
 
 async function getImageData(file) {
     return new Promise((resolve, reject) => {
@@ -9,10 +18,9 @@ async function getImageData(file) {
     });
 }
 
-async function fetchJson(url, options = {}) {
-    const proxy = `https://corsproxy.io/?${encodeURIComponent(url)}`;
-    const headers = { Accept: 'application/json', ...(options.headers || {}) };
-    const resp = await fetch(proxy, { ...options, headers });
+async function fetchJson(url) {
+    const proxy = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+    const resp = await fetch(proxy);
     if (!resp.ok) {
         throw new Error(`Request failed: ${resp.status}`);
     }
@@ -25,9 +33,14 @@ async function search() {
     resultsDiv.innerHTML = '';
     let url = imageUrl;
     let encodedImage = null;
-    if (!url && fileInput) {
+    if (activeInput === 'file' && fileInput) {
         const data = await getImageData(fileInput);
         encodedImage = data.replace(/^data:image\/(png|jpe?g);base64,/, '');
+    }
+    if (activeInput === 'url' && !url && fileInput) {
+        const data = await getImageData(fileInput);
+        encodedImage = data.replace(/^data:image\/(png|jpe?g);base64,/, '');
+        activeInput = 'file';
     }
     if (!url && !encodedImage) {
         resultsDiv.textContent = 'Please provide an image URL or upload a file.';
@@ -36,16 +49,7 @@ async function search() {
     let serpUrl;
     let options = {};
     if (encodedImage) {
-        serpUrl = 'https://serpapi.com/search.json';
-        options = {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: new URLSearchParams({
-                engine: 'google_lens',
-                api_key: API_KEY,
-                encoded_image: encodedImage
-            })
-        };
+        serpUrl = `https://serpapi.com/search.json?engine=google_lens&api_key=${API_KEY}&encoded_image=${encodeURIComponent(encodedImage)}`;
     } else {
         serpUrl = `https://serpapi.com/search.json?engine=google_lens&url=${encodeURIComponent(url)}&api_key=${API_KEY}`;
     }
@@ -67,21 +71,21 @@ async function search() {
         }
 
         items = items.map(r => {
-            let priceNum = Infinity;
-            let priceText = 'N/A';
+            let priceNum = null;
+            let currency = 'EUR';
             if (r.price) {
                 if (typeof r.price === 'string') {
-                    priceText = r.price;
-                    const n = parseFloat(r.price.replace(/[^0-9.]/g, ''));
+                    const n = parseFloat(r.price.replace(/[^0-9.,]/g, '').replace(/,/g, ''));
                     if (!isNaN(n)) priceNum = n;
+                    if (/\$/.test(r.price)) currency = 'USD';
+                    if (/£/.test(r.price)) currency = 'GBP';
+                    if (/€/.test(r.price)) currency = 'EUR';
                 } else {
                     if (typeof r.price.extracted_value === 'number') {
                         priceNum = r.price.extracted_value;
                     }
-                    if (r.price.value) {
-                        priceText = r.price.value;
-                    } else if (r.price.currency) {
-                        priceText = `${r.price.currency}${r.price.extracted_value}`;
+                    if (r.price.currency) {
+                        currency = r.price.currency.toUpperCase();
                     }
                 }
             }
@@ -93,30 +97,37 @@ async function search() {
                     source = source.charAt(0).toUpperCase() + source.slice(1);
                 } catch {}
             }
+            let priceEUR = null;
+            if (priceNum != null && EXCHANGE_RATES[currency]) {
+                priceEUR = priceNum * EXCHANGE_RATES[currency];
+            }
             return {
                 title: r.title || 'No title',
                 link: r.link || '',
-                price: priceNum,
-                priceText,
+                price: priceEUR,
+                priceText: priceEUR != null ? `€${priceEUR.toFixed(2)}` : 'N/A',
                 source,
                 thumbnail: r.thumbnail || r.image || ''
             };
-        }).filter(i => i.link);
+        }).filter(i => i.link && i.price != null);
         items.sort((a, b) => a.price - b.price);
         if (!items.length) {
             resultsDiv.textContent = 'No results found.';
             return;
         }
-        items.forEach(i => {
+        items.forEach((i, idx) => {
             const div = document.createElement('div');
             div.className = 'result';
             div.innerHTML = `
-                <img src="${i.thumbnail}" alt=""> 
+                <img src="${i.thumbnail}" alt="">
                 <div class="info">
                     <a href="${i.link}" target="_blank">${i.source}: ${i.title}</a>
                     <div class="price">${i.priceText}</div>
                 </div>`;
             resultsDiv.appendChild(div);
+            requestAnimationFrame(() => {
+                setTimeout(() => div.classList.add('show'), idx * 50);
+            });
         });
     } catch (e) {
         console.error(e);
@@ -124,5 +135,18 @@ async function search() {
     }
 }
 
+const urlInputEl = document.getElementById('image-url');
+const fileInputEl = document.getElementById('image-file');
+
+function updateActive(type) {
+    activeInput = type;
+    urlInputEl.classList.toggle('active', type === 'url');
+    fileInputEl.classList.toggle('active', type === 'file');
+}
+
+urlInputEl.addEventListener('input', () => updateActive('url'));
+fileInputEl.addEventListener('change', () => updateActive('file'));
 document.getElementById('search-btn').addEventListener('click', search);
+
+updateActive('url');
 

@@ -140,6 +140,15 @@ body::after {
 
 #results {
     margin-top: 20px;
+    display: grid;
+    gap: 20px;
+    grid-template-columns: 1fr;
+}
+
+@media (min-width: 600px) {
+    #results {
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    }
 }
 
 .divider {
@@ -164,14 +173,17 @@ body::after {
     background: rgba(32,32,34,0.75);
     border-radius: 12px;
     padding: 20px;
-    margin-bottom: 24px;
+    margin: 0;
     box-shadow: 0 6px 20px rgba(0,0,0,0.45);
     display: flex;
+    flex-direction: column;
     align-items: center;
     backdrop-filter: blur(6px);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, opacity 0.4s ease;
     position: relative;
     overflow: hidden;
+    opacity: 0;
+    transform: translateY(20px);
 }
 
 .result::before {
@@ -206,6 +218,17 @@ body::after {
 
 .result:hover::after {
     opacity: 1;
+}
+
+.result.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+@media (min-width: 500px) {
+    .result {
+        flex-direction: row;
+    }
 }
 
 .result img {
@@ -279,6 +302,11 @@ input:focus {
     outline: none;
     border-color: var(--accent);
     box-shadow: 0 0 0 2px rgba(113,84,216,0.4);
+}
+
+input.active {
+    border-color: var(--accent-light);
+    box-shadow: 0 0 0 2px rgba(168,138,255,0.6);
 }
 
 button:focus {
