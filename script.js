@@ -9,9 +9,19 @@ const EXCHANGE_RATES = {
 };
 let activeInput = 'url';
 
+function displayError(el, err) {
+    console.error(err);
+    el.textContent = `Error: ${err.message}`;
+}
+
 async function fetchJson(url, options = {}) {
     const proxy = `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`;
-    const resp = await fetch(proxy, options);
+    let resp;
+    try {
+        resp = await fetch(proxy, options);
+    } catch (err) {
+        throw new Error(`Fetch failed: ${err.message}`);
+    }
     const text = await resp.text();
     if (!resp.ok) {
         throw new Error(`Request failed ${resp.status}: ${text.slice(0, 200)}`);
@@ -147,8 +157,7 @@ async function search() {
             });
         });
     } catch (e) {
-        console.error(e);
-        resultsDiv.textContent = `Error: ${e.message}`;
+        displayError(resultsDiv, e);
     }
 }
 
