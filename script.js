@@ -19,7 +19,7 @@ async function getImageData(file) {
 }
 
 async function fetchJson(url, options = {}) {
-    const proxy = `https://thingproxy.freeboard.io/fetch/${url}`;
+    const proxy = `https://r.jina.ai/${url}`;
     const resp = await fetch(proxy, options);
     if (!resp.ok) {
         throw new Error(`Request failed: ${resp.status}`);
