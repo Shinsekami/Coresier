@@ -10,7 +10,7 @@ Results show a preview image, the store name and product title, and the price in
 4. Links are displayed (when available) with the detected price, sorted from lowest to highest.  The SerpApi key is embedded in the code so no extra input is required.
    Large uploads may fail with the proxy, so providing a URL to the image tends to be more reliable.
 
-The site fetches the API through the free [thingproxy.freeboard.io](https://thingproxy.freeboard.io) service so it works purely as a client-side page. Image uploads are sent via POST to avoid URL length limits, but extremely large files might still fail – using a direct image link is the safest choice.
+The site fetches the API through the free [Codetabs proxy](https://api.codetabs.com/v1/proxy) so it works purely as a client-side page. Uploaded images are first sent to [tmpfiles.org](https://tmpfiles.org) and the resulting temporary URL is searched via SerpApi. This avoids CORS issues while keeping everything client-side.
 
 
 The interface sports a sleek purple theme with glowing gradients and animated cards. Search results are sorted by price in Euros and will display “N/A” if pricing information isn’t available. The URL and file inputs highlight whichever was used most recently so it’s clear what will be searched.
