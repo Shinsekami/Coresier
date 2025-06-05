@@ -8,7 +8,9 @@ Results show a preview image, the store name and product title, and the price in
 2. Open the site and either upload an image of the furniture or paste a public image URL.
 3. Click **Search** and FurniScout will query Google Lens through SerpApi.
 4. Links are displayed (when available) with the detected price, sorted from lowest to highest.  The SerpApi key is embedded in the code so no extra input is required.
-   Large uploads may fail with the proxy, so providing a URL to the image tends to be more reliable.
+   Large uploads may exceed SerpApi's limits, so providing a URL to the image tends to be more reliable.
+
+The site fetches the API through the free [Codetabs proxy](https://api.codetabs.com/v1/proxy) so it works purely as a client-side page. Uploaded files are encoded directly in the request using SerpApi's `encoded_image` parameter so no external hosting is required.
 
 
 The site fetches the API through the free [Codetabs proxy](https://api.codetabs.com/v1/proxy) so it works purely as a client-side page. Uploaded images are first sent to [tmpfiles.org](https://tmpfiles.org) and the resulting temporary URL is searched via SerpApi. This avoids CORS issues while keeping everything client-side.
