@@ -9,22 +9,33 @@ const EXCHANGE_RATES = {
 };
 let activeInput = 'url';
 
-async function getImageData(file) {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-    });
+async function fetchJson(url, options = {}) {
+    const proxy = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+    const resp = await fetch(proxy, options);
+    const text = await resp.text();
+    if (!resp.ok) {
+        throw new Error(`Request failed ${resp.status}: ${text.slice(0, 200)}`);
+    }
+    try {
+        return JSON.parse(text);
+    } catch (e) {
+        throw new Error(`Invalid JSON: ${e.message}. Response: ${text.slice(0, 200)}`);
+    }
 }
 
-async function fetchJson(url, options = {}) {
-    const proxy = `https://thingproxy.freeboard.io/fetch/${url}`;
-    const resp = await fetch(proxy, options);
-    if (!resp.ok) {
-        throw new Error(`Request failed: ${resp.status}`);
+async function uploadImage(file) {
+    const fd = new FormData();
+    fd.append('file', file);
+    const resp = await fetch('https://tmpfiles.org/api/v1/upload', {
+        method: 'POST',
+        body: fd
+    });
+    const data = await resp.json().catch(() => ({}));
+    if (!resp.ok || data.status !== 'success') {
+        const msg = data.error || resp.statusText || 'Unknown error';
+        throw new Error(`Image upload failed: ${msg}`);
     }
-    return resp.json();
+    return data.data.url;
 }
 async function search() {
     const imageUrl = document.getElementById('image-url').value.trim();
@@ -32,31 +43,33 @@ async function search() {
     const resultsDiv = document.getElementById('results');
     resultsDiv.innerHTML = '';
     let url = imageUrl;
-    let encodedImage = null;
     if (activeInput === 'file' && fileInput) {
-        const data = await getImageData(fileInput);
-        encodedImage = data.replace(/^data:image\/(png|jpe?g);base64,/, '');
+        try {
+            url = await uploadImage(fileInput);
+        } catch (e) {
+            resultsDiv.textContent = e.message;
+            console.error(e);
+            return;
+        }
     }
     if (activeInput === 'url' && !url && fileInput) {
-        const data = await getImageData(fileInput);
-        encodedImage = data.replace(/^data:image\/(png|jpe?g);base64,/, '');
-        activeInput = 'file';
+        try {
+            url = await uploadImage(fileInput);
+            activeInput = 'file';
+        } catch (e) {
+            resultsDiv.textContent = e.message;
+            console.error(e);
+            return;
+        }
     }
-    if (!url && !encodedImage) {
+    if (!url) {
         resultsDiv.textContent = 'Please provide an image URL or upload a file.';
         return;
     }
-    let serpUrl = 'https://serpapi.com/search.json';
-    let options = {};
-    if (encodedImage) {
-        options.method = 'POST';
-        options.headers = { 'Content-Type': 'application/x-www-form-urlencoded' };
-        options.body = `engine=google_lens&api_key=${API_KEY}&encoded_image=${encodeURIComponent(encodedImage)}`;
-    } else {
-        serpUrl += `?engine=google_lens&url=${encodeURIComponent(url)}&api_key=${API_KEY}`;
-    }
+    
+    const serpUrl = `https://serpapi.com/search.json?engine=google_lens&url=${encodeURIComponent(url)}&api_key=${API_KEY}`;
     try {
-        const data = await fetchJson(serpUrl, options);
+        const data = await fetchJson(serpUrl);
 
         let items = [];
         if (Array.isArray(data.shopping_results)) {
