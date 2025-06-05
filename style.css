@@ -305,6 +305,12 @@ body::before {
     flex: 1;
 }
 
+.object-name {
+    font-size: 0.8rem;
+    opacity: 0.8;
+    margin-bottom: 4px;
+}
+
 .info a {
     display: inline-block;
     margin-bottom: 6px;
