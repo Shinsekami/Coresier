@@ -15,7 +15,7 @@ function displayError(el, err) {
 }
 
 async function fetchJson(url, options = {}) {
-    const proxy = `https://corsproxy.io/?${encodeURIComponent(url)}`;
+    const proxy = `https://r.jina.ai/${url}`;
     let resp;
     try {
         resp = await fetch(proxy, options);
@@ -26,10 +26,15 @@ async function fetchJson(url, options = {}) {
     if (!resp.ok) {
         throw new Error(`Request failed ${resp.status}: ${text.slice(0, 200)}`);
     }
+    let jsonText = text.trim();
+    const idx = jsonText.indexOf('{');
+    if (idx > 0) {
+        jsonText = jsonText.slice(idx);
+    }
     try {
-        return JSON.parse(text);
+        return JSON.parse(jsonText);
     } catch (e) {
-        throw new Error(`Invalid JSON: ${e.message}. Response: ${text.slice(0, 200)}`);
+        throw new Error(`Invalid JSON: ${e.message}. Response: ${jsonText.slice(0, 200)}`);
     }
 }
 
