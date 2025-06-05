@@ -112,7 +112,14 @@ async function search() {
                         priceNum = r.price.extracted_value;
                     }
                     if (r.price.currency) {
-                        currency = r.price.currency.toUpperCase();
+                        let cur = r.price.currency.trim();
+                        if (cur === '$' || cur === 'US$') cur = 'USD';
+                        else if (cur === '£') cur = 'GBP';
+                        else if (cur === '€') cur = 'EUR';
+                        else if (cur.toUpperCase() === 'C$' || cur.toUpperCase() === 'CAD$') cur = 'CAD';
+                        else if (cur.toUpperCase() === 'A$' || cur.toUpperCase() === 'AUD$') cur = 'AUD';
+                        else if (cur === '¥') cur = 'JPY';
+                        currency = cur.toUpperCase();
                     }
                 }
             }
