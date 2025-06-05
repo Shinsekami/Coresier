@@ -26,6 +26,7 @@ async function fetchJson(url, options = {}) {
     if (!resp.ok) {
         throw new Error(`Request failed ${resp.status}: ${text.slice(0, 200)}`);
     }
+
     const start = text.indexOf('{');
     const jsonText = start >= 0 ? text.slice(start) : text;
     try {
@@ -49,17 +50,26 @@ async function search() {
     const resultsDiv = document.getElementById('results');
     resultsDiv.innerHTML = '';
     let url = imageUrl;
-    let encodedImage = null;
     if (activeInput === 'file' && fileInput) {
-        const data = await getImageData(fileInput);
-        encodedImage = data.replace(/^data:image\/(png|jpe?g);base64,/, '');
+        try {
+            url = await uploadImage(fileInput);
+        } catch (e) {
+            resultsDiv.textContent = e.message;
+            console.error(e);
+            return;
+        }
     }
     if (activeInput === 'url' && !url && fileInput) {
-        const data = await getImageData(fileInput);
-        encodedImage = data.replace(/^data:image\/(png|jpe?g);base64,/, '');
-        activeInput = 'file';
+        try {
+            url = await uploadImage(fileInput);
+            activeInput = 'file';
+        } catch (e) {
+            resultsDiv.textContent = e.message;
+            console.error(e);
+            return;
+        }
     }
-    if (!url && !encodedImage) {
+    if (!url) {
         resultsDiv.textContent = 'Please provide an image URL or upload a file.';
         return;
     }
@@ -74,7 +84,7 @@ async function search() {
         serpUrl += `?engine=google_lens&url=${encodeURIComponent(url)}&api_key=${API_KEY}`;
     }
     try {
-        const data = await fetchJson(serpUrl, options);
+        const data = await fetchJson(serpUrl);
 
         let items = [];
         if (Array.isArray(data.shopping_results)) {
