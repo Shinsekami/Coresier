@@ -33,6 +33,30 @@ async function fetchJson(url, options = {}) {
     }
 }
 
+function displayError(el, err) {
+    console.error(err);
+    el.textContent = `Error: ${err.message}`;
+}
+
+async function fetchJson(url, options = {}) {
+    const proxy = `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`;
+    let resp;
+    try {
+        resp = await fetch(proxy, options);
+    } catch (err) {
+        throw new Error(`Fetch failed: ${err.message}`);
+    }
+    const text = await resp.text();
+    if (!resp.ok) {
+        throw new Error(`Request failed ${resp.status}: ${text.slice(0, 200)}`);
+    }
+    try {
+        return JSON.parse(text);
+    } catch (e) {
+        throw new Error(`Invalid JSON: ${e.message}. Response: ${text.slice(0, 200)}`);
+    }
+}
+
 async function getImageData(file) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -47,17 +71,26 @@ async function search() {
     const resultsDiv = document.getElementById('results');
     resultsDiv.innerHTML = '';
     let url = imageUrl;
-    let encodedImage = null;
     if (activeInput === 'file' && fileInput) {
-        const data = await getImageData(fileInput);
-        encodedImage = data.replace(/^data:image\/(png|jpe?g);base64,/, '');
+        try {
+            url = await uploadImage(fileInput);
+        } catch (e) {
+            resultsDiv.textContent = e.message;
+            console.error(e);
+            return;
+        }
     }
     if (activeInput === 'url' && !url && fileInput) {
-        const data = await getImageData(fileInput);
-        encodedImage = data.replace(/^data:image\/(png|jpe?g);base64,/, '');
-        activeInput = 'file';
+        try {
+            url = await uploadImage(fileInput);
+            activeInput = 'file';
+        } catch (e) {
+            resultsDiv.textContent = e.message;
+            console.error(e);
+            return;
+        }
     }
-    if (!url && !encodedImage) {
+    if (!url) {
         resultsDiv.textContent = 'Please provide an image URL or upload a file.';
         return;
     }
@@ -72,7 +105,7 @@ async function search() {
         serpUrl += `?engine=google_lens&url=${encodeURIComponent(url)}&api_key=${API_KEY}`;
     }
     try {
-        const data = await fetchJson(serpUrl, options);
+        const data = await fetchJson(serpUrl);
 
         let items = [];
         if (Array.isArray(data.shopping_results)) {
