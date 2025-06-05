@@ -7,7 +7,31 @@ const EXCHANGE_RATES = {
     AUD: 0.61,
     JPY: 0.0058
 };
-let activeInput = 'url';
+let activeInput = 'url'; // tracks which input was used last
+
+function displayError(el, err) {
+    console.error(err);
+    el.textContent = `Error: ${err.message}`;
+}
+
+async function fetchJson(url, options = {}) {
+    const proxy = `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`;
+    let resp;
+    try {
+        resp = await fetch(proxy, options);
+    } catch (err) {
+        throw new Error(`Fetch failed: ${err.message}`);
+    }
+    const text = await resp.text();
+    if (!resp.ok) {
+        throw new Error(`Request failed ${resp.status}: ${text.slice(0, 200)}`);
+    }
+    try {
+        return JSON.parse(text);
+    } catch (e) {
+        throw new Error(`Invalid JSON: ${e.message}. Response: ${text.slice(0, 200)}`);
+    }
+}
 
 async function getImageData(file) {
     return new Promise((resolve, reject) => {
@@ -16,15 +40,6 @@ async function getImageData(file) {
         reader.onerror = reject;
         reader.readAsDataURL(file);
     });
-}
-
-async function fetchJson(url, options = {}) {
-    const proxy = `https://thingproxy.freeboard.io/fetch/${url}`;
-    const resp = await fetch(proxy, options);
-    if (!resp.ok) {
-        throw new Error(`Request failed: ${resp.status}`);
-    }
-    return resp.json();
 }
 async function search() {
     const imageUrl = document.getElementById('image-url').value.trim();
@@ -46,6 +61,7 @@ async function search() {
         resultsDiv.textContent = 'Please provide an image URL or upload a file.';
         return;
     }
+
     let serpUrl = 'https://serpapi.com/search.json';
     let options = {};
     if (encodedImage) {
@@ -111,7 +127,7 @@ async function search() {
                 source,
                 thumbnail: r.thumbnail || r.image || ''
             };
-        }).filter(i => i.link);
+        }).filter(i => i.link && i.price != null);
         items.sort((a, b) => (a.price ?? Infinity) - (b.price ?? Infinity));
         if (!items.length) {
             resultsDiv.textContent = 'No results found.';
@@ -132,8 +148,7 @@ async function search() {
             });
         });
     } catch (e) {
-        console.error(e);
-        resultsDiv.textContent = 'Error fetching results.';
+        displayError(resultsDiv, e);
     }
 }
 
@@ -151,4 +166,8 @@ fileInputEl.addEventListener('change', () => updateActive('file'));
 document.getElementById('search-btn').addEventListener('click', search);
 
 updateActive('url');
+
+// Expose for easier debugging in the console
+window.search = search;
+window.updateActive = updateActive;
 
