@@ -11,6 +11,7 @@ let activeInput = 'url';
 
 async function fetchJson(url, options = {}) {
     const proxy = `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`;
+
     const resp = await fetch(proxy, options);
     const text = await resp.text();
     if (!resp.ok) {
