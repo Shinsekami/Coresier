@@ -7,7 +7,31 @@ const EXCHANGE_RATES = {
     AUD: 0.61,
     JPY: 0.0058
 };
-let activeInput = 'url';
+let activeInput = 'url'; // tracks which input was used last
+
+function displayError(el, err) {
+    console.error(err);
+    el.textContent = `Error: ${err.message}`;
+}
+
+async function fetchJson(url, options = {}) {
+    const proxy = `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`;
+    let resp;
+    try {
+        resp = await fetch(proxy, options);
+    } catch (err) {
+        throw new Error(`Fetch failed: ${err.message}`);
+    }
+    const text = await resp.text();
+    if (!resp.ok) {
+        throw new Error(`Request failed ${resp.status}: ${text.slice(0, 200)}`);
+    }
+    try {
+        return JSON.parse(text);
+    } catch (e) {
+        throw new Error(`Invalid JSON: ${e.message}. Response: ${text.slice(0, 200)}`);
+    }
+}
 
 function displayError(el, err) {
     console.error(err);
@@ -175,4 +199,8 @@ fileInputEl.addEventListener('change', () => updateActive('file'));
 document.getElementById('search-btn').addEventListener('click', search);
 
 updateActive('url');
+
+// Expose for easier debugging in the console
+window.search = search;
+window.updateActive = updateActive;
 
