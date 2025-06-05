@@ -7,7 +7,36 @@ const EXCHANGE_RATES = {
     AUD: 0.61,
     JPY: 0.0058
 };
-let activeInput = 'url';
+let activeInput = 'url'; // tracks which input was used last
+
+function displayError(el, err) {
+    console.error(err);
+    el.textContent = `Error: ${err.message}`;
+}
+
+async function fetchJson(url, options = {}) {
+    const proxy = `https://r.jina.ai/${url}`;
+    let resp;
+    try {
+        resp = await fetch(proxy, options);
+    } catch (err) {
+        throw new Error(`Fetch failed: ${err.message}`);
+    }
+    const text = await resp.text();
+    if (!resp.ok) {
+        throw new Error(`Request failed ${resp.status}: ${text.slice(0, 200)}`);
+    }
+    let jsonText = text.trim();
+    const idx = jsonText.indexOf('{');
+    if (idx > 0) {
+        jsonText = jsonText.slice(idx);
+    }
+    try {
+        return JSON.parse(jsonText);
+    } catch (e) {
+        throw new Error(`Invalid JSON: ${e.message}. Response: ${jsonText.slice(0, 200)}`);
+    }
+}
 
 async function getImageData(file) {
     return new Promise((resolve, reject) => {
@@ -18,13 +47,10 @@ async function getImageData(file) {
     });
 }
 
-async function fetchJson(url, options = {}) {
-    const proxy = `https://thingproxy.freeboard.io/fetch/${url}`;
-    const resp = await fetch(proxy, options);
-    if (!resp.ok) {
-        throw new Error(`Request failed: ${resp.status}`);
-    }
-    return resp.json();
+// Backwards compatible helper used in earlier revisions
+async function uploadImage(file) {
+    const data = await getImageData(file);
+    return data.replace(/^data:image\/(png|jpe?g);base64,/, '');
 }
 async function search() {
     const imageUrl = document.getElementById('image-url').value.trim();
@@ -34,18 +60,17 @@ async function search() {
     let url = imageUrl;
     let encodedImage = null;
     if (activeInput === 'file' && fileInput) {
-        const data = await getImageData(fileInput);
-        encodedImage = data.replace(/^data:image\/(png|jpe?g);base64,/, '');
+        encodedImage = await uploadImage(fileInput);
     }
     if (activeInput === 'url' && !url && fileInput) {
-        const data = await getImageData(fileInput);
-        encodedImage = data.replace(/^data:image\/(png|jpe?g);base64,/, '');
+        encodedImage = await uploadImage(fileInput);
         activeInput = 'file';
     }
     if (!url && !encodedImage) {
         resultsDiv.textContent = 'Please provide an image URL or upload a file.';
         return;
     }
+
     let serpUrl = 'https://serpapi.com/search.json';
     let options = {};
     if (encodedImage) {
@@ -87,7 +112,14 @@ async function search() {
                         priceNum = r.price.extracted_value;
                     }
                     if (r.price.currency) {
-                        currency = r.price.currency.toUpperCase();
+                        let cur = r.price.currency.trim();
+                        if (cur === '$' || cur === 'US$') cur = 'USD';
+                        else if (cur === '£') cur = 'GBP';
+                        else if (cur === '€') cur = 'EUR';
+                        else if (cur.toUpperCase() === 'C$' || cur.toUpperCase() === 'CAD$') cur = 'CAD';
+                        else if (cur.toUpperCase() === 'A$' || cur.toUpperCase() === 'AUD$') cur = 'AUD';
+                        else if (cur === '¥') cur = 'JPY';
+                        currency = cur.toUpperCase();
                     }
                 }
             }
@@ -111,7 +143,7 @@ async function search() {
                 source,
                 thumbnail: r.thumbnail || r.image || ''
             };
-        }).filter(i => i.link);
+        }).filter(i => i.link && i.price != null);
         items.sort((a, b) => (a.price ?? Infinity) - (b.price ?? Infinity));
         if (!items.length) {
             resultsDiv.textContent = 'No results found.';
@@ -132,8 +164,7 @@ async function search() {
             });
         });
     } catch (e) {
-        console.error(e);
-        resultsDiv.textContent = 'Error fetching results.';
+        displayError(resultsDiv, e);
     }
 }
 
@@ -151,4 +182,9 @@ fileInputEl.addEventListener('change', () => updateActive('file'));
 document.getElementById('search-btn').addEventListener('click', search);
 
 updateActive('url');
+
+// Expose for easier debugging in the console
+window.search = search;
+window.updateActive = updateActive;
+window.uploadImage = uploadImage;
 
