@@ -26,7 +26,6 @@ async function fetchJson(url, options = {}) {
     if (!resp.ok) {
         throw new Error(`Request failed ${resp.status}: ${text.slice(0, 200)}`);
     }
-
     const start = text.indexOf('{');
     const jsonText = start >= 0 ? text.slice(start) : text;
     try {
@@ -44,6 +43,12 @@ async function getImageData(file) {
         reader.readAsDataURL(file);
     });
 }
+
+// Backwards compatible helper used in earlier revisions
+async function uploadImage(file) {
+    const data = await getImageData(file);
+    return data.replace(/^data:image\/(png|jpe?g);base64,/, '');
+}
 async function search() {
     const imageUrl = document.getElementById('image-url').value.trim();
     const fileInput = document.getElementById('image-file').files[0];
@@ -51,23 +56,11 @@ async function search() {
     resultsDiv.innerHTML = '';
     let url = imageUrl;
     if (activeInput === 'file' && fileInput) {
-        try {
-            url = await uploadImage(fileInput);
-        } catch (e) {
-            resultsDiv.textContent = e.message;
-            console.error(e);
-            return;
-        }
+        encodedImage = await uploadImage(fileInput);
     }
     if (activeInput === 'url' && !url && fileInput) {
-        try {
-            url = await uploadImage(fileInput);
-            activeInput = 'file';
-        } catch (e) {
-            resultsDiv.textContent = e.message;
-            console.error(e);
-            return;
-        }
+        encodedImage = await uploadImage(fileInput);
+        activeInput = 'file';
     }
     if (!url) {
         resultsDiv.textContent = 'Please provide an image URL or upload a file.';
@@ -182,4 +175,6 @@ updateActive('url');
 // Expose for easier debugging in the console
 window.search = search;
 window.updateActive = updateActive;
+window.uploadImage = uploadImage;
+
 
