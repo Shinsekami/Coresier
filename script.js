@@ -289,3 +289,4 @@ window.updateActive = updateActive;
 window.uploadImage = uploadImage;
 window.exportResults = exportResults;
 
+
